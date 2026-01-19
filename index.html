@@ -4,96 +4,220 @@
   <meta charset="UTF-8" />
   <title>Open Citation Trajectory</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Tailwind via CDN for quick prototyping -->
+
+  <!-- Tailwind (CDN) for prototyping -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inter font (similar “clean dashboard” feel) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Match the “dashboard-y” look: soft background + subtle grid */
+    .bg-grid {
+      background-image:
+        linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+  </style>
 </head>
-<body class="min-h-screen bg-slate-100 text-slate-900">
-  <div class="max-w-5xl mx-auto px-4 py-8">
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold tracking-tight mb-2">
-        Open Citation Trajectory
-      </h1>
-      <p class="text-sm text-slate-700">
-        An open, reproducible report of how scholarly articles are cited over time.<br>
-        Uses <span class="font-semibold">OpenCitations</span> and <span class="font-semibold">Crossref</span> directly from your browser.
-      </p>
-    </header>
 
-    <!-- Input card -->
-    <section class="mb-6">
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6 flex flex-col gap-3">
-        <label for="doi-input" class="text-sm font-medium text-slate-800">
-          Enter DOI or DOI URL
-        </label>
-        <div class="flex flex-col sm:flex-row gap-3">
-          <input
-            id="doi-input"
-            type="text"
-            placeholder="10.xxxx/abcd.efgh or https://doi.org/10.xxxx/abcd.efgh"
-            class="flex-1 rounded-xl border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            id="analyze-btn"
-            class="rounded-xl bg-blue-600 text-white px-4 py-2 text-sm font-semibold hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed"
-          >
-            Analyze
-          </button>
+<body class="min-h-screen bg-slate-50 text-slate-900 font-sans">
+  <!-- Top bar (like your TOC/calendar vibe) -->
+  <div class="bg-slate-950 text-white">
+    <div class="max-w-6xl mx-auto px-4 py-6">
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div class="flex items-center gap-2">
+            <div class="h-9 w-9 rounded-2xl bg-white/10 flex items-center justify-center">
+              <span class="text-sm font-black tracking-tight">OCT</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              Open Citation Trajectory
+            </h1>
+          </div>
+          <p class="mt-2 text-sm text-white/75 max-w-2xl">
+            An open, reproducible report of how scholarly articles are cited over time.
+            <span class="text-white/60">Client-only. GitHub Pages friendly.</span>
+          </p>
         </div>
 
-        <div class="flex items-center gap-3">
-          <label class="flex items-center gap-2 text-xs text-slate-600">
-            <input id="debug-toggle" type="checkbox" class="rounded border-slate-300" />
-            Debug
-          </label>
-          <span id="status" class="text-xs text-slate-500"></span>
-        </div>
-
-        <div id="debug-panel" class="hidden mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-          <div class="text-xs font-semibold text-slate-700 mb-2">Debug log</div>
-          <pre id="debug-log" class="text-[11px] whitespace-pre-wrap break-words text-slate-700"></pre>
+        <div class="flex items-center gap-2 text-xs text-white/70">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1">
+            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            OpenCitations + Crossref
+          </span>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- Results -->
-    <section id="results" class="space-y-6 hidden">
-      <!-- Article summary -->
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h2 class="text-lg font-semibold mb-3">Article</h2>
-        <div id="article-summary" class="text-sm space-y-1"></div>
-      </div>
+  <div class="bg-grid">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      <!-- Input card -->
+      <section class="mb-6">
+        <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-4 sm:p-6">
+          <div class="flex flex-col gap-4">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-base font-semibold tracking-tight">Analyze a DOI</h2>
+                <p class="text-xs text-slate-600 mt-1">
+                  Paste a DOI or a doi.org link. We’ll fetch open citations and build a time-series trajectory.
+                </p>
+              </div>
 
-      <!-- Trajectory summary -->
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <h2 class="text-lg font-semibold mb-3">Citation trajectory</h2>
-        <div id="trajectory-summary" class="text-sm space-y-2"></div>
-        <div id="trajectory-plot" class="mt-4"></div>
-      </div>
+              <label class="flex items-center gap-2 text-xs text-slate-600 select-none">
+                <input id="debug-toggle" type="checkbox" class="rounded border-slate-300" />
+                Debug
+              </label>
+            </div>
 
-      <!-- Citing works table -->
-      <div class="bg-white rounded-2xl shadow p-4 sm:p-6">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-lg font-semibold">Citing works</h2>
-          <span id="citations-count" class="text-xs text-slate-500"></span>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <div class="flex-1">
+                <label for="doi-input" class="sr-only">DOI</label>
+                <input
+                  id="doi-input"
+                  type="text"
+                  placeholder="10.xxxx/abcd.efgh or https://doi.org/10.xxxx/abcd.efgh"
+                  class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 focus:border-slate-400"
+                />
+                <div class="mt-2 flex items-center gap-2">
+                  <span id="status" class="text-xs text-slate-500"></span>
+                </div>
+              </div>
+
+              <div class="flex items-end gap-2">
+                <button
+                  id="analyze-btn"
+                  class="rounded-xl bg-slate-900 text-white px-4 py-2.5 text-sm font-semibold hover:bg-slate-800 disabled:bg-slate-400 disabled:cursor-not-allowed"
+                >
+                  Analyze
+                </button>
+                <button
+                  id="example-btn"
+                  class="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                  title="Fill a sample DOI"
+                >
+                  Example
+                </button>
+              </div>
+            </div>
+
+            <div id="debug-panel" class="hidden rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div class="text-xs font-semibold text-slate-700 mb-2">Debug log</div>
+              <pre id="debug-log" class="text-[11px] whitespace-pre-wrap break-words text-slate-700"></pre>
+            </div>
+
+            <div class="text-[11px] text-slate-500 leading-relaxed">
+              Notes: Citation counts may differ from Scopus / Web of Science / Google Scholar due to coverage and indexing differences.
+              This tool relies on open citation data (OpenCitations) and open metadata (Crossref).
+            </div>
+          </div>
         </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead>
-              <tr class="border-b border-slate-200 bg-slate-50">
-                <th class="text-left py-2 px-2">DOI</th>
-                <th class="text-left py-2 px-2">Title</th>
-                <th class="text-left py-2 px-2">Journal</th>
-                <th class="text-left py-2 px-2">Year</th>
-              </tr>
-            </thead>
-            <tbody id="citations-table-body"></tbody>
-          </table>
+      </section>
+
+      <!-- Results -->
+      <section id="results" class="space-y-6 hidden">
+        <!-- Summary row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-5 lg:col-span-2">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h2 class="text-base font-semibold tracking-tight">Article</h2>
+                <p class="text-xs text-slate-600 mt-1">Focal work metadata (Crossref).</p>
+              </div>
+              <a id="doi-link" href="#" target="_blank" rel="noopener noreferrer"
+                 class="hidden text-xs font-semibold rounded-full bg-slate-900 text-white px-3 py-1 hover:bg-slate-800">
+                Open DOI
+              </a>
+            </div>
+
+            <div id="article-summary" class="mt-4 text-sm space-y-1"></div>
+          </div>
+
+          <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-5">
+            <h2 class="text-base font-semibold tracking-tight">Trajectory</h2>
+            <p class="text-xs text-slate-600 mt-1">OpenCitations-derived time series.</p>
+
+            <div id="trajectory-summary" class="mt-4 text-sm space-y-2"></div>
+
+            <div class="mt-4 rounded-xl bg-slate-50 border border-slate-200 p-3">
+              <div class="text-xs font-semibold text-slate-700 mb-2">Citations by year</div>
+              <div id="trajectory-plot"></div>
+            </div>
+          </div>
         </div>
-        <p class="mt-2 text-[11px] text-slate-500">
-          Data from OpenCitations (citations) and Crossref (metadata). Counts may differ from Scopus / Web of Science / Google Scholar.
-        </p>
-      </div>
-    </section>
+
+        <!-- Citing works -->
+        <div class="bg-white rounded-2xl shadow-sm ring-1 ring-slate-200 p-4 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+            <div>
+              <h2 class="text-base font-semibold tracking-tight">Citing works</h2>
+              <p class="text-xs text-slate-600 mt-1">
+                OpenCitations provides the citation links. Crossref enriches titles/journals for the first N citing DOIs.
+              </p>
+            </div>
+            <span id="citations-count" class="text-xs text-slate-500"></span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="min-w-full text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50">
+                  <th class="text-left py-2.5 px-3 text-xs font-semibold text-slate-700">DOI</th>
+                  <th class="text-left py-2.5 px-3 text-xs font-semibold text-slate-700">Title</th>
+                  <th class="text-left py-2.5 px-3 text-xs font-semibold text-slate-700">Journal</th>
+                  <th class="text-left py-2.5 px-3 text-xs font-semibold text-slate-700">Year</th>
+                </tr>
+              </thead>
+              <tbody id="citations-table-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+
+          <div class="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p class="text-[11px] text-slate-500">
+              If a citing entry has no DOI (or an invalid DOI), it will still be listed (without Crossref enrichment) so counts match.
+            </p>
+
+            <div class="flex items-center gap-2">
+              <button
+                id="export-json"
+                class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+              >
+                Export JSON
+              </button>
+              <button
+                id="export-csv"
+                class="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled
+              >
+                Export CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="mt-10 text-center text-xs text-slate-500">
+        <span class="font-semibold">Open Citation Trajectory</span> · Static client-only build ·
+        Data: OpenCitations + Crossref ·
+        <span class="text-slate-400">No user data stored</span>
+      </footer>
+    </div>
   </div>
 
   <script>
@@ -115,18 +239,26 @@
     // ---- DOM ----
     const doiInput = document.getElementById("doi-input");
     const analyzeBtn = document.getElementById("analyze-btn");
+    const exampleBtn = document.getElementById("example-btn");
     const statusEl = document.getElementById("status");
     const resultsEl = document.getElementById("results");
 
+    const doiLinkEl = document.getElementById("doi-link");
     const articleSummaryEl = document.getElementById("article-summary");
     const trajectorySummaryEl = document.getElementById("trajectory-summary");
     const trajectoryPlotEl = document.getElementById("trajectory-plot");
     const citationsCountEl = document.getElementById("citations-count");
     const citationsTableBodyEl = document.getElementById("citations-table-body");
 
+    const exportJsonBtn = document.getElementById("export-json");
+    const exportCsvBtn = document.getElementById("export-csv");
+
     const debugToggleEl = document.getElementById("debug-toggle");
     const debugPanelEl = document.getElementById("debug-panel");
     const debugLogEl = document.getElementById("debug-log");
+
+    // For export buttons
+    let LAST_REPORT = null;
 
     function sleep(ms) {
       return new Promise((resolve) => setTimeout(resolve, ms));
@@ -162,15 +294,13 @@
 
       let s = raw.trim();
 
-      // If it's a URL, extract the pathname (everything after domain)
+      // If it's a URL, extract the pathname
       try {
         if (/^https?:\/\//i.test(s)) {
           const u = new URL(s);
-          s = (u.pathname || "").replace(/^\/+/, ""); // drop leading slash
+          s = (u.pathname || "").replace(/^\/+/, "");
         }
-      } catch (_) {
-        // ignore URL parse errors
-      }
+      } catch (_) {}
 
       // Strip common prefixes
       s = s.replace(/^doi:\s*/i, "");
@@ -178,7 +308,7 @@
       // Remove query/fragment
       s = s.split("?")[0].split("#")[0].trim();
 
-      // Remove trailing punctuation often copied from PDFs/emails
+      // Remove trailing punctuation copied from PDFs/emails
       s = s.replace(/[)\].,;:]+$/g, "");
 
       return s.toLowerCase();
@@ -188,6 +318,7 @@
     async function fetchJson(url) {
       debugLog(`FETCH: ${url}`);
       const res = await fetch(url, { headers: { "Accept": "application/json" } });
+
       if (!res.ok) {
         const text = await res.text();
         let detail = text;
@@ -257,24 +388,58 @@
         .reduce((acc, yc) => acc + yc.count, 0);
     }
 
-    // ---- Render ----
+    // ---- Render helpers ----
+    function escapeHtml(s) {
+      return String(s || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
     function renderArticle(article) {
       const lines = [];
-      lines.push(`<div><span class="font-semibold">Title:</span> ${article.title || "(no title)"}</div>`);
-      lines.push(`<div><span class="font-semibold">DOI:</span> <a class="text-blue-600 underline" href="https://doi.org/${article.doi}" target="_blank" rel="noopener noreferrer">https://doi.org/${article.doi}</a></div>`);
-      if (article.container_title) lines.push(`<div><span class="font-semibold">Journal:</span> ${article.container_title}</div>`);
-      if (article.publisher) lines.push(`<div><span class="font-semibold">Publisher:</span> ${article.publisher}</div>`);
-      if (article.published_year) lines.push(`<div><span class="font-semibold">Year:</span> ${article.published_year}</div>`);
+      lines.push(`<div class="text-base font-semibold">${escapeHtml(article.title || "(no title)")}</div>`);
+      lines.push(
+        `<div class="text-xs text-slate-600 mt-1">
+          <span class="font-semibold text-slate-700">DOI:</span>
+          <a class="text-slate-900 underline decoration-slate-400 hover:decoration-slate-900"
+             href="https://doi.org/${encodeURIComponent(article.doi)}"
+             target="_blank" rel="noopener noreferrer">
+            https://doi.org/${escapeHtml(article.doi)}
+          </a>
+        </div>`
+      );
+
+      const meta = [];
+      if (article.container_title) meta.push(`<span class="font-semibold">Journal:</span> ${escapeHtml(article.container_title)}`);
+      if (article.publisher) meta.push(`<span class="font-semibold">Publisher:</span> ${escapeHtml(article.publisher)}`);
+      if (article.published_year) meta.push(`<span class="font-semibold">Year:</span> ${escapeHtml(article.published_year)}`);
+
+      if (meta.length) {
+        lines.push(`<div class="mt-3 text-sm text-slate-700 space-y-1">
+          ${meta.map((m) => `<div>${m}</div>`).join("")}
+        </div>`);
+      }
+
       articleSummaryEl.innerHTML = lines.join("");
+
+      doiLinkEl.href = `https://doi.org/${encodeURIComponent(article.doi)}`;
+      doiLinkEl.classList.remove("hidden");
     }
 
     function renderTrajectory(trajectory) {
       const parts = [];
-      parts.push(`<div><span class="font-semibold">Total citations (OpenCitations):</span> ${trajectory.total_citations}</div>`);
+      parts.push(`<div><span class="font-semibold">Total citations:</span> ${trajectory.total_citations}</div>`);
+
       if (trajectory.first_citation_year && trajectory.latest_citation_year) {
         parts.push(`<div><span class="font-semibold">Citation span:</span> ${trajectory.first_citation_year} – ${trajectory.latest_citation_year}</div>`);
+      } else {
+        parts.push(`<div><span class="font-semibold">Citation span:</span> —</div>`);
       }
-      parts.push(`<div><span class="font-semibold">Recent ${trajectory.recent_window_years} years:</span> ${trajectory.recent_citations} citations</div>`);
+
+      parts.push(`<div><span class="font-semibold">Recent ${trajectory.recent_window_years} years:</span> ${trajectory.recent_citations}</div>`);
       trajectorySummaryEl.innerHTML = parts.join("");
 
       if (!trajectory.citations_by_year.length) {
@@ -282,43 +447,109 @@
         return;
       }
 
+      // Small “dashboard” histogram style with fixed max width
+      const maxCount = Math.max(...trajectory.citations_by_year.map((yc) => yc.count), 1);
+
       const rows = trajectory.citations_by_year.map((yc) => {
-        const barLen = Math.min(yc.count, 40);
-        const bar = "█".repeat(barLen);
+        const pct = Math.round((yc.count / maxCount) * 100);
         return `
-          <div class="font-mono text-xs">
-            <span class="inline-block w-10">${yc.year}</span>
-            <span class="inline-block w-3 text-right">${yc.count}</span>
-            <span class="ml-2 text-blue-600">${bar}</span>
+          <div class="grid grid-cols-[56px_40px_1fr] items-center gap-2 py-1">
+            <div class="font-mono text-[11px] text-slate-600">${yc.year}</div>
+            <div class="font-mono text-[11px] text-slate-700 text-right">${yc.count}</div>
+            <div class="h-2.5 rounded-full bg-white border border-slate-200 overflow-hidden">
+              <div class="h-full bg-slate-900/80" style="width:${pct}%"></div>
+            </div>
           </div>
         `;
       });
+
       trajectoryPlotEl.innerHTML = rows.join("");
     }
 
     function renderCitations(citations, totalFound) {
+      // totalFound = OpenCitations total
+      // citations.length = rows shown (should match totalFound after our “preserve all entries” logic)
       citationsCountEl.textContent = `${totalFound} citing works found; ${citations.length} shown (metadata limited to first ${MAX_CITING_DETAILED})`;
 
       if (!citations.length) {
-        citationsTableBodyEl.innerHTML = `<tr><td colspan="4" class="py-3 px-2 text-xs text-slate-500">No citing works found in OpenCitations.</td></tr>`;
+        citationsTableBodyEl.innerHTML =
+          `<tr><td colspan="4" class="py-4 px-3 text-xs text-slate-500">No citing works found in OpenCitations.</td></tr>`;
         return;
       }
 
       const rows = citations.map((c) => {
-        const url = c.doi ? `https://doi.org/${c.doi}` : null;
+        const doi = c.doi || "";
+        const isRealDoi = /^10\./i.test(doi) && !doi.includes("missing/invalid");
+
+        const doiCell = isRealDoi
+          ? `<a href="https://doi.org/${encodeURIComponent(doi)}" target="_blank" rel="noopener noreferrer"
+                class="text-slate-900 underline decoration-slate-300 hover:decoration-slate-900">
+                ${escapeHtml(doi)}
+             </a>`
+          : `<span class="text-slate-500">${escapeHtml(doi)}</span>`;
+
+        const title = c.title ? escapeHtml(c.title) : `<span class="text-slate-400">—</span>`;
+        const journal = c.container_title ? escapeHtml(c.container_title) : `<span class="text-slate-400">—</span>`;
+        const year = c.published_year ? escapeHtml(c.published_year) : `<span class="text-slate-400">—</span>`;
+
         return `
-          <tr class="border-t border-slate-100">
-            <td class="py-2 px-2 align-top">
-              ${url ? `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">${c.doi}</a>` : (c.doi || "")}
-            </td>
-            <td class="py-2 px-2 align-top">${c.title || ""}</td>
-            <td class="py-2 px-2 align-top">${c.container_title || ""}</td>
-            <td class="py-2 px-2 align-top">${c.published_year || ""}</td>
+          <tr>
+            <td class="py-2.5 px-3 align-top text-xs">${doiCell}</td>
+            <td class="py-2.5 px-3 align-top">${title}</td>
+            <td class="py-2.5 px-3 align-top text-slate-700">${journal}</td>
+            <td class="py-2.5 px-3 align-top text-slate-700">${year}</td>
           </tr>
         `;
       });
+
       citationsTableBodyEl.innerHTML = rows.join("");
     }
+
+    // ---- Export ----
+    function downloadFile(filename, mime, content) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function toCsv(rows) {
+      // Simple CSV exporter
+      const header = ["doi", "title", "container_title", "published_year"];
+      const esc = (v) => {
+        const s = (v === null || v === undefined) ? "" : String(v);
+        const needs = /[",\n\r]/.test(s);
+        const out = s.replaceAll('"', '""');
+        return needs ? `"${out}"` : out;
+      };
+
+      const lines = [];
+      lines.push(header.join(","));
+      for (const r of rows) {
+        lines.push([
+          esc(r.doi),
+          esc(r.title),
+          esc(r.container_title),
+          esc(r.published_year),
+        ].join(","));
+      }
+      return lines.join("\n");
+    }
+
+    exportJsonBtn.addEventListener("click", () => {
+      if (!LAST_REPORT) return;
+      downloadFile("open-citation-trajectory.json", "application/json", JSON.stringify(LAST_REPORT, null, 2));
+    });
+
+    exportCsvBtn.addEventListener("click", () => {
+      if (!LAST_REPORT) return;
+      downloadFile("open-citation-trajectory-citing-works.csv", "text/csv", toCsv(LAST_REPORT.citations || []));
+    });
 
     // ---- Main action ----
     async function handleAnalyze() {
@@ -326,7 +557,11 @@
 
       // Make it obvious that the click is being processed
       setStatus("Analyzing…");
-      clearDebug();
+      exportJsonBtn.disabled = true;
+      exportCsvBtn.disabled = true;
+      LAST_REPORT = null;
+
+      if (debugEnabled()) clearDebug();
       debugLog(`RAW INPUT: ${rawInput}`);
 
       if (!rawInput) {
@@ -344,10 +579,11 @@
 
       analyzeBtn.disabled = true;
       resultsEl.classList.add("hidden");
+      doiLinkEl.classList.add("hidden");
 
       try {
         // 1) Focal article metadata (Crossref)
-        setStatus("Fetching article metadata (Crossref)...");
+        setStatus("Fetching article metadata (Crossref)…");
         const work = await fetchCrossrefWork(doi);
         if (!work) throw new Error("DOI not found in Crossref.");
 
@@ -360,7 +596,7 @@
         };
 
         // 2) Citing links (OpenCitations)
-        setStatus("Fetching citations (OpenCitations)...");
+        setStatus("Fetching citations (OpenCitations)…");
         const citingLinks = await fetchOpenCitations(doi);
         debugLog(`OpenCitations links returned: ${citingLinks.length}`);
 
@@ -382,49 +618,104 @@
           recent_citations: recentCitations,
         };
 
-        // 4) Enrich citing works with Crossref (limited)
-        setStatus("Enriching citing works metadata (Crossref)...");
-        const citingDois = citingLinks
-          .map((item) => normalizeDoi(item.citing || ""))
-          .filter((d) => d && d.startsWith("10."));
+        // 4) Enrich citing works with Crossref (limited) — while preserving ALL entries
+        setStatus("Preparing citing works…");
 
-        const limitedDois = citingDois.slice(0, MAX_CITING_DETAILED);
-        debugLog(`Citing DOIs total: ${citingDois.length}; enriching: ${limitedDois.length}`);
+        // Preserve all OpenCitations results so the UI count matches exactly.
+        const citingEntries = citingLinks.map((item) => {
+          const raw = (item.citing || "").trim();
+          const norm = normalizeDoi(raw);
+          const isDoi = norm.startsWith("10.");
+          return {
+            raw_citing: raw || null,
+            doi: isDoi ? norm : null,
+            oci: item.oci || null,
+            creation: item.creation || null
+          };
+        });
 
+        const totalFound = citingEntries.length;
+
+        // Only entries with DOI can be enriched with Crossref
+        const doiEntries = citingEntries.filter((e) => !!e.doi);
+        const limitedDoiEntries = doiEntries.slice(0, MAX_CITING_DETAILED);
+
+        debugLog(`Citing entries total: ${totalFound}; DOIs: ${doiEntries.length}; enriching: ${limitedDoiEntries.length}`);
+
+        // Placeholder rows for ALL entries (so we always show full count)
         const citingWorks = [];
-        for (let i = 0; i < limitedDois.length; i++) {
-          const d = limitedDois[i];
+        for (const e of citingEntries) {
+          if (!e.doi) {
+            citingWorks.push({
+              doi: e.raw_citing || "(missing/invalid DOI)",
+              title: null,
+              container_title: null,
+              published_year: null
+            });
+          } else {
+            citingWorks.push({
+              doi: e.doi,
+              title: null,
+              container_title: null,
+              published_year: null
+            });
+          }
+        }
 
-          // Update status occasionally so user sees progress
+        // Enrich DOI entries via Crossref, patch in-place
+        setStatus("Enriching citing works metadata (Crossref)…");
+        for (let i = 0; i < limitedDoiEntries.length; i++) {
+          const d = limitedDoiEntries[i].doi;
+
           if (i === 0 || i % 15 === 0) {
-            setStatus(`Enriching citing works… (${i + 1}/${limitedDois.length})`);
+            setStatus(`Enriching citing works… (${i + 1}/${limitedDoiEntries.length})`);
           }
 
           try {
             const meta = await fetchCrossrefWork(d);
-            if (!meta) {
-              citingWorks.push({ doi: d });
-            } else {
-              citingWorks.push({
-                doi: d,
-                title: meta.title && meta.title.length ? meta.title.join("; ") : null,
-                container_title: meta["container-title"] && meta["container-title"].length ? meta["container-title"].join("; ") : null,
-                published_year: extractYearFromCrossref(meta),
-              });
+            const title = meta?.title?.length ? meta.title.join("; ") : null;
+            const container = meta?.["container-title"]?.length ? meta["container-title"].join("; ") : null;
+            const year = meta ? extractYearFromCrossref(meta) : null;
+
+            // Patch the first matching row with this DOI
+            const idx = citingWorks.findIndex((w) => w.doi === d);
+            if (idx !== -1) {
+              citingWorks[idx] = { doi: d, title, container_title: container, published_year: year };
             }
           } catch (err) {
             debugLog(`Crossref failed for citing DOI ${d}: ${String(err.message || err)}`);
-            citingWorks.push({ doi: d });
           }
 
-          // small delay to avoid hammering Crossref
           await sleep(CROSSREF_DELAY_MS);
         }
 
         // Render
         renderArticle(article);
         renderTrajectory(trajectory);
-        renderCitations(citingWorks, totalCitations);
+        renderCitations(citingWorks, totalFound);
+
+        // Save report for exports
+        LAST_REPORT = {
+          schema_version: "0.1.0",
+          computed_at: new Date().toISOString(),
+          query: { input: rawInput, normalized_doi: doi },
+          article,
+          trajectory,
+          citations: citingWorks,
+          sources: {
+            citation_links: [{
+              name: "OpenCitations COCI",
+              url: `${OPEN_CITATIONS_BASE}/citations/${encodeURIComponent(doi)}`
+            }],
+            metadata: [{
+              name: "Crossref REST",
+              url: `${CROSSREF_BASE}/works/${encodeURIComponent(doi)}`
+            }]
+          }
+        };
+
+        exportJsonBtn.disabled = false;
+        exportCsvBtn.disabled = false;
 
         resultsEl.classList.remove("hidden");
         setStatus("");
@@ -436,6 +727,14 @@
         analyzeBtn.disabled = false;
       }
     }
+
+    // Example DOI (works well usually)
+    exampleBtn.addEventListener("click", () => {
+      // You can swap this for an anesthesia DOI you like
+      doiInput.value = "10.1056/NEJMoa2001017";
+      doiInput.focus();
+      setStatus("Example DOI inserted. Click Analyze.");
+    });
 
     analyzeBtn.addEventListener("click", handleAnalyze);
     doiInput.addEventListener("keydown", (e) => {
