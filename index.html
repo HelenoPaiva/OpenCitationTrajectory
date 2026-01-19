@@ -2,7 +2,8 @@
 <html lang="en" class="antialiased">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
@@ -14,7 +15,9 @@
       darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: { sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'] },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+          },
           colors: { slate: { 850: '#1e293b' } }
         }
       }
@@ -31,30 +34,46 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Simple “risk-transition” style reuse */
-    .soft-transition { transition: background-color 0.35s ease, border-color 0.35s ease, color 0.25s ease, transform 0.15s ease; }
+    .soft-transition {
+      transition:
+        background-color 0.35s ease,
+        border-color 0.35s ease,
+        color 0.25s ease,
+        transform 0.15s ease;
+    }
   </style>
 </head>
 
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col pb-[80px]">
 
-  <!-- NAV (same vibe as your gastric volume tool) -->
+  <!-- NAV -->
   <nav class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 pt-[env(safe-area-inset-top)] px-4 pb-3">
-    <div class="flex items-center justify-between max-w-xl mx-auto mt-2">
+    <div class="flex items-center justify-between max-w-xl mx-auto mt-2 gap-3">
       <div>
         <h1 class="text-lg font-bold tracking-tight leading-none">Open Citation Trajectory</h1>
-        <p class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mt-1">DOI → citation trajectory</p>
+        <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-1">
+          An open, reproducible report of how scholarly articles are cited over time.
+        </p>
+        <a href="https://github.com/HelenoPaiva/OpenCitationTrajectory"
+           target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 mt-1">
+          GitHub repository
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M14 3h7m0 0v7m0-7L10 14"></path>
+          </svg>
+        </a>
       </div>
 
       <button onclick="toggleTheme()" aria-label="Toggle Dark Mode"
         class="p-3 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 active:scale-95 transition-transform">
         <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
         </svg>
         <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 0z"></path>
         </svg>
       </button>
     </div>
@@ -63,28 +82,34 @@
   <main class="flex-1 w-full max-w-xl mx-auto px-4 py-6 space-y-6">
 
     <!-- INPUT -->
-    <section class="space-y-4">
-      <div class="flex justify-between items-end px-1">
-        <h2 class="text-xs font-bold uppercase text-slate-400 tracking-wider">Input</h2>
-        <button onclick="fillExample()" class="px-3 py-1 -mr-2 text-[10px] font-bold text-blue-600 dark:text-blue-400 active:opacity-50">
-          EXAMPLE
-        </button>
-      </div>
+    <section class="space-y-3">
+      <h2 class="text-xs font-bold uppercase text-slate-400 tracking-wider ml-1">Input</h2>
 
       <div class="relative group">
         <label class="absolute -top-2 left-3 bg-slate-50 dark:bg-slate-950 px-1 text-[10px] font-semibold text-slate-500 transition-colors group-focus-within:text-blue-500">
           DOI or DOI URL
         </label>
-        <input type="text" id="doiInput" placeholder="e.g. https://doi.org/10.xxxx/abcd.efgh"
-          class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3.5 font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-        >
-        <div class="flex items-center justify-between mt-2 px-1">
-          <div id="status" class="text-[10px] text-slate-500 fade-in"></div>
-          <button id="analyzeBtn" onclick="analyze()" class="px-4 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 text-white dark:text-blue-400 text-xs font-bold active:scale-[0.98] transition soft-transition shadow-sm">
+
+        <div class="flex gap-2 mt-2">
+          <input
+            type="text"
+            id="doiInput"
+            placeholder="e.g. https://doi.org/10.xxxx/abcd.efgh"
+            class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3.5 font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+          >
+          <button
+            id="analyzeBtn"
+            onclick="analyze()"
+            class="px-4 py-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white dark:text-blue-400 text-xs font-bold active:scale-[0.98] transition soft-transition shadow-sm whitespace-nowrap"
+          >
             ANALYZE
           </button>
         </div>
-        <div id="err" class="text-[10px] text-rose-500 mt-2 ml-1 hidden fade-in"></div>
+
+        <div class="flex items-center justify-between mt-2 px-1">
+          <div id="status" class="text-[10px] text-slate-500 fade-in"></div>
+        </div>
+        <div id="err" class="text-[10px] text-rose-500 mt-1 ml-1 hidden fade-in"></div>
       </div>
     </section>
 
@@ -103,7 +128,7 @@
             <label class="absolute -top-2 left-3 bg-white dark:bg-slate-900 px-1 text-[10px] font-semibold text-slate-500 group-focus-within:text-blue-500">
               Recent window (years)
             </label>
-            <input id="recentWindow" type="text" inputmode="numeric" value="3"
+            <input id="recentWindow" type="text" inputmode="numeric" value="5"
               class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 font-medium outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-center"
             >
           </div>
@@ -166,7 +191,7 @@
           <div class="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Trajectory</div>
         </div>
         <div class="p-4 space-y-3">
-          <div class="grid grid-cols-3 gap-3">
+          <div class="grid grid-cols-2 gap-3">
             <div class="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-3">
               <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Total</div>
               <div id="tTotal" class="text-2xl font-bold leading-none">—</div>
@@ -174,10 +199,6 @@
             <div class="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-3">
               <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Span</div>
               <div id="tSpan" class="text-sm font-mono font-semibold text-slate-700 dark:text-slate-200">—</div>
-            </div>
-            <div class="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 p-3">
-              <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Recent</div>
-              <div id="tRecent" class="text-sm font-mono font-semibold text-slate-700 dark:text-slate-200">—</div>
             </div>
           </div>
 
@@ -223,7 +244,8 @@
   </main>
 
   <!-- Toast -->
-  <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-xl opacity-0 transition-all pointer-events-none z-50 flex items-center gap-2">
+  <div id="toast"
+       class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-xs font-bold shadow-xl opacity-0 transition-all pointer-events-none z-50 flex items-center gap-2">
     <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
     </svg>
@@ -240,10 +262,8 @@
     const CROSSREF_BASE = "https://api.crossref.org";
     const CROSSREF_DELAY_MS = 120;
 
-    // State for exports
     let LAST_REPORT = null;
 
-    // DOM
     const $ = (id) => document.getElementById(id);
 
     const doiInput = $("doiInput");
@@ -259,7 +279,6 @@
 
     const tTotalEl = $("tTotal");
     const tSpanEl = $("tSpan");
-    const tRecentEl = $("tRecent");
     const yearBarsEl = $("yearBars");
     const noYearDataEl = $("noYearData");
 
@@ -287,7 +306,7 @@
       }
     }
 
-    // Theme (same persistence style as your other tool)
+    // Theme
     function loadTheme() {
       const saved = localStorage.getItem("oct_theme");
       if (saved === "dark") document.documentElement.classList.add("dark");
@@ -300,10 +319,15 @@
     }
     function toggleTheme() {
       document.documentElement.classList.toggle("dark");
-      localStorage.setItem("oct_theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+      localStorage.setItem("oct_theme",
+        document.documentElement.classList.contains("dark") ? "dark" : "light");
     }
 
     // Settings persistence
+    function parseIntSafe(v, fallback) {
+      const n = parseInt(String(v || "").trim(), 10);
+      return Number.isFinite(n) && n > 0 ? n : fallback;
+    }
     function loadSettings() {
       const saved = localStorage.getItem("oct_settings");
       if (!saved) return;
@@ -315,23 +339,17 @@
     }
     function saveSettings() {
       const s = {
-        recentWindow: parseIntSafe(recentWindowEl.value, 3),
+        recentWindow: parseIntSafe(recentWindowEl.value, 5),
         maxEnrich: parseIntSafe(maxEnrichEl.value, 100),
       };
       localStorage.setItem("oct_settings", JSON.stringify(s));
     }
 
-    function parseIntSafe(v, fallback) {
-      const n = parseInt(String(v || "").trim(), 10);
-      return Number.isFinite(n) && n > 0 ? n : fallback;
-    }
-
-    // Robust DOI normalization
+    // DOI normalization
     function normalizeDoi(raw) {
       if (!raw) return "";
       let s = raw.trim();
 
-      // If URL, take pathname
       try {
         if (/^https?:\/\//i.test(s)) {
           const u = new URL(s);
@@ -339,13 +357,8 @@
         }
       } catch (_) {}
 
-      // Strip doi: prefix
       s = s.replace(/^doi:\s*/i, "");
-
-      // Remove query/fragment
       s = s.split("?")[0].split("#")[0].trim();
-
-      // Remove trailing punctuation
       s = s.replace(/[)\].,;:]+$/g, "");
 
       return s.toLowerCase();
@@ -427,9 +440,6 @@
 
     function showToast(text = "Exported") {
       const t = $("toast");
-      t.childNodes.forEach(() => {});
-      t.lastChild && (t.lastChild.nodeValue = "");
-      // Keep the icon + text
       t.innerHTML = `
         <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
@@ -448,10 +458,18 @@
       articleTitleEl.textContent = article.title || "—";
 
       const lines = [];
-      lines.push(`<div><span class="font-semibold">DOI:</span> <a class="text-blue-600 dark:text-blue-400 underline" href="https://doi.org/${encodeURIComponent(article.doi)}" target="_blank" rel="noopener noreferrer">https://doi.org/${esc(article.doi)}</a></div>`);
-      if (article.container_title) lines.push(`<div><span class="font-semibold">Journal:</span> ${esc(article.container_title)}</div>`);
-      if (article.publisher) lines.push(`<div><span class="font-semibold">Publisher:</span> ${esc(article.publisher)}</div>`);
-      if (article.published_year) lines.push(`<div><span class="font-semibold">Year:</span> ${esc(article.published_year)}</div>`);
+      lines.push(
+        `<div><span class="font-semibold">DOI:</span> <a class="text-blue-600 dark:text-blue-400 underline" href="https://doi.org/${encodeURIComponent(article.doi)}" target="_blank" rel="noopener noreferrer">https://doi.org/${esc(article.doi)}</a></div>`
+      );
+      if (article.container_title) {
+        lines.push(`<div><span class="font-semibold">Journal:</span> ${esc(article.container_title)}</div>`);
+      }
+      if (article.publisher) {
+        lines.push(`<div><span class="font-semibold">Publisher:</span> ${esc(article.publisher)}</div>`);
+      }
+      if (article.published_year) {
+        lines.push(`<div><span class="font-semibold">Year:</span> ${esc(article.published_year)}</div>`);
+      }
       articleMetaEl.innerHTML = lines.join("");
 
       doiLinkEl.href = `https://doi.org/${encodeURIComponent(article.doi)}`;
@@ -466,9 +484,6 @@
         : "—";
       tSpanEl.textContent = span;
 
-      tRecentEl.textContent = `${trajectory.recent_citations} / ${trajectory.recent_window_years}y`;
-
-      // Bars
       yearBarsEl.innerHTML = "";
       if (!trajectory.citations_by_year || trajectory.citations_by_year.length === 0) {
         noYearDataEl.classList.remove("hidden");
@@ -498,7 +513,8 @@
       citingCountEl.textContent = `${totalFound} found; ${rows.length} shown (enrich first ${maxEnrich})`;
 
       if (!rows.length) {
-        citingBodyEl.innerHTML = `<tr><td colspan="4" class="py-4 px-2 text-[11px] text-slate-400">No citing works found.</td></tr>`;
+        citingBodyEl.innerHTML =
+          `<tr><td colspan="4" class="py-4 px-2 text-[11px] text-slate-400">No citing works found.</td></tr>`;
         return;
       }
 
@@ -548,29 +564,34 @@
       };
       const lines = [header.join(",")];
       for (const r of rows) {
-        lines.push([csvEsc(r.doi), csvEsc(r.title), csvEsc(r.container_title), csvEsc(r.published_year)].join(","));
+        lines.push([
+          csvEsc(r.doi),
+          csvEsc(r.title),
+          csvEsc(r.container_title),
+          csvEsc(r.published_year)
+        ].join(","));
       }
       return lines.join("\n");
     }
 
     function exportJSON() {
       if (!LAST_REPORT) return;
-      downloadFile("open-citation-trajectory.json", "application/json", JSON.stringify(LAST_REPORT, null, 2));
+      downloadFile(
+        "open-citation-trajectory.json",
+        "application/json",
+        JSON.stringify(LAST_REPORT, null, 2)
+      );
       showToast("Exported JSON");
     }
 
     function exportCSV() {
       if (!LAST_REPORT) return;
-      downloadFile("open-citation-trajectory-citing-works.csv", "text/csv", toCsv(LAST_REPORT.citations || []));
+      downloadFile(
+        "open-citation-trajectory-citing-works.csv",
+        "text/csv",
+        toCsv(LAST_REPORT.citations || [])
+      );
       showToast("Exported CSV");
-    }
-
-    function fillExample() {
-      // swap to any DOI you want
-      doiInput.value = "https://doi.org/10.1056/NEJMoa2001017";
-      setErr(null);
-      setStatus("Example inserted. Tap ANALYZE.");
-      doiInput.focus();
     }
 
     async function analyze() {
@@ -603,10 +624,10 @@
       doiLinkEl.classList.add("hidden");
 
       try {
-        const recentWindowYears = parseIntSafe(recentWindowEl.value, 3);
+        const recentWindowYears = parseIntSafe(recentWindowEl.value, 5);
         const maxEnrich = parseIntSafe(maxEnrichEl.value, 100);
 
-        // 1) Crossref focal article
+        // 1) Focal article
         setStatus("Fetching article metadata (Crossref)…");
         const work = await fetchCrossrefWork(doi);
         if (!work) throw new Error("DOI not found in Crossref.");
@@ -619,7 +640,7 @@
           published_year: extractYearFromCrossref(work),
         };
 
-        // 2) OpenCitations links
+        // 2) Citing links
         setStatus("Fetching citations (OpenCitations)…");
         const citingLinks = await fetchOpenCitations(doi);
         const totalCitations = citingLinks.length;
@@ -639,7 +660,7 @@
           recent_citations: recentCitations,
         };
 
-        // 4) Preserve all citing entries, enrich only DOI ones
+        // 4) Citing entries
         setStatus("Preparing citing works…");
         const citingEntries = citingLinks.map((item) => {
           const raw = (item.citing || "").trim();
@@ -657,7 +678,6 @@
         const doiEntries = citingEntries.filter((e) => !!e.doi);
         const limitedDoiEntries = doiEntries.slice(0, maxEnrich);
 
-        // placeholder rows for ALL entries
         const citingWorks = [];
         for (const e of citingEntries) {
           if (!e.doi) {
@@ -677,7 +697,6 @@
           }
         }
 
-        // Enrich
         if (limitedDoiEntries.length > 0) {
           setStatus("Enriching citing works (Crossref)…");
         }
@@ -695,24 +714,22 @@
             const container = meta?.["container-title"]?.length ? meta["container-title"].join("; ") : null;
             const year = meta ? extractYearFromCrossref(meta) : null;
 
-            // patch first matching row for this doi
             const idx = citingWorks.findIndex((w) => w.doi === d);
             if (idx !== -1) {
               citingWorks[idx] = { doi: d, title, container_title: container, published_year: year };
             }
           } catch (_) {
-            // keep placeholder row
+            // keep placeholder
           }
 
           await sleep(CROSSREF_DELAY_MS);
         }
 
-        // Render
+        // Render UI
         renderArticle(article);
         renderTrajectory(trajectory);
         renderCitingWorks(citingWorks, totalFound, maxEnrich);
 
-        // Store report for exports
         LAST_REPORT = {
           schema_version: "0.1.0",
           computed_at: new Date().toISOString(),
@@ -721,8 +738,14 @@
           trajectory,
           citations: citingWorks,
           sources: {
-            citation_links: [{ name: "OpenCitations COCI", url: `${OPEN_CITATIONS_BASE}/citations/${encodeURIComponent(doi)}` }],
-            metadata: [{ name: "Crossref REST", url: `${CROSSREF_BASE}/works/${encodeURIComponent(doi)}` }]
+            citation_links: [{
+              name: "OpenCitations COCI",
+              url: `${OPEN_CITATIONS_BASE}/citations/${encodeURIComponent(doi)}`
+            }],
+            metadata: [{
+              name: "Crossref REST",
+              url: `${CROSSREF_BASE}/works/${encodeURIComponent(doi)}`
+            }]
           }
         };
 
@@ -752,4 +775,3 @@
   </script>
 </body>
 </html>
-
