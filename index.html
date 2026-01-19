@@ -173,16 +173,10 @@
         <div class="px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900">
           <div class="flex items-center justify-between gap-2">
             <div class="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Article</div>
-            <div class="flex items-center gap-2">
-              <a id="scholarLink" href="#" target="_blank" rel="noopener noreferrer"
-                 class="hidden text-[10px] font-semibold text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white">
-                Google Scholar
-              </a>
-              <a id="doiLink" href="#" target="_blank" rel="noopener noreferrer"
-                class="hidden text-[10px] font-bold text-blue-600 dark:text-blue-400 active:opacity-60">
-                OPEN DOI
-              </a>
-            </div>
+            <a id="scholarLink" href="#" target="_blank" rel="noopener noreferrer"
+               class="hidden text-[10px] font-semibold text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white">
+              Google Scholar
+            </a>
           </div>
         </div>
         <div class="p-4 space-y-2">
@@ -208,8 +202,7 @@
             </div>
           </div>
 
-          <div id="tOpenAlex"
-               class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+          <div id="tOpenAlex" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
             OpenAlex: —
           </div>
 
@@ -246,7 +239,7 @@
           </div>
 
           <div class="text-[10px] text-slate-400 mt-2 px-1">
-            If a citing entry lacks a valid DOI, it is still listed (no Crossref enrichment) so counts match OpenCications.
+            If a citing entry lacks a valid DOI, it is still listed (no Crossref enrichment) so counts match OpenCitations.
           </div>
         </div>
       </div>
@@ -285,7 +278,6 @@
 
     const resultsEl = $("results");
 
-    const doiLinkEl = $("doiLink");
     const scholarLinkEl = $("scholarLink");
     const articleTitleEl = $("articleTitle");
     const articleMetaEl = $("articleMeta");
@@ -410,7 +402,6 @@
     }
 
     async function fetchOpenAlexWork(doi) {
-      // OpenAlex work ID: /works/https://doi.org/<DOI>
       const url = `${OPENALEX_BASE}/works/https://doi.org/${encodeURIComponent(doi)}`;
       try {
         const data = await fetchJson(url);
@@ -497,9 +488,6 @@
         lines.push(`<div><span class="font-semibold">Year:</span> ${esc(article.published_year)}</div>`);
       }
       articleMetaEl.innerHTML = lines.join("");
-
-      doiLinkEl.href = `https://doi.org/${encodeURIComponent(article.doi)}`;
-      doiLinkEl.classList.remove("hidden");
 
       if (scholarUrl) {
         scholarLinkEl.href = scholarUrl;
@@ -660,17 +648,16 @@
       analyzeBtn.disabled = true;
       analyzeBtn.textContent = "WORKING…";
       resultsEl.classList.add("hidden");
-      doiLinkEl.classList.add("hidden");
       scholarLinkEl.classList.add("hidden");
 
       try {
         const recentWindowYears = parseIntSafe(recentWindowEl.value, 5);
         const maxEnrich = parseIntSafe(maxEnrichEl.value, 100);
 
-        // Scholar link (no scraping, just a convenience search)
+        // Scholar link: convenience (no scraping)
         const scholarUrl = `https://scholar.google.com/scholar?q=${encodeURIComponent(doi)}`;
 
-        // 1) Focal article (Crossref)
+        // 1) Crossref focal article
         setStatus("Fetching article metadata (Crossref)…");
         const work = await fetchCrossrefWork(doi);
         if (!work) throw new Error("DOI not found in Crossref.");
@@ -683,7 +670,7 @@
           published_year: extractYearFromCrossref(work),
         };
 
-        // 2) OpenAlex (global citation count)
+        // 2) OpenAlex (global citations)
         let openAlex = null;
         let openAlexCount = null;
         try {
@@ -693,10 +680,10 @@
             openAlexCount = openAlex.cited_by_count;
           }
         } catch (_) {
-          // Ignore OpenAlex errors – not critical
+          // OpenAlex is optional; ignore errors
         }
 
-        // 3) Citing links (OpenCitations)
+        // 3) OpenCitations (citing links)
         setStatus("Fetching citations (OpenCitations)…");
         const citingLinks = await fetchOpenCitations(doi);
         const totalCitations = citingLinks.length;
@@ -781,13 +768,14 @@
           await sleep(CROSSREF_DELAY_MS);
         }
 
-        // Render UI
+        // Render
         renderArticle(article, scholarUrl);
         renderTrajectory(trajectory, openAlexCount);
         renderCitingWorks(citingWorks, totalFound, maxEnrich);
 
+        // Exportable report
         LAST_REPORT = {
-          schema_version: "0.2.0",
+          schema_version: "0.2.1",
           computed_at: new Date().toISOString(),
           query: { input: rawInput, normalized_doi: doi },
           article,
@@ -806,7 +794,11 @@
               name: "OpenAlex",
               url: openAlex.id || `${OPENALEX_BASE}/works/https://doi.org/${encodeURIComponent(doi)}`,
               cited_by_count: openAlexCount
-            }] : []
+            }] : [],
+            scholar: [{
+              name: "Google Scholar (search link)",
+              url: scholarUrl
+            }]
           }
         };
 
