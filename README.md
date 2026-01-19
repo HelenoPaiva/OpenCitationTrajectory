@@ -3,6 +3,7 @@
 An open, reproducible report of how scholarly articles are cited over time.
 
 **Live site (GitHub Pages):** https://helenopaiva.github.io/OpenCitationTrajectory/
+
 **Repo:** https://github.com/HelenoPaiva/OpenCitationTrajectory
 
 ## What it does
