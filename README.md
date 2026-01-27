@@ -43,4 +43,13 @@ Just open `index.html` in your browser.
 
 ## License
 
-MIT (recommended). Add a `LICENSE` file if you want to formalize it.
+This repository is intended for open academic use.  
+License terms will be finalized prior to any commercial deployment.
+
+---
+
+## Author
+
+**Heleno de Paiva Oliveira, MD, PhD**  
+Professor of Anesthesiology  
+Universidade Federal do Rio Grande do Norte (UFRN), Brazil
