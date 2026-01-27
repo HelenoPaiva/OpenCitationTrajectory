@@ -1,3 +1,9 @@
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18391746-blue)](https://doi.org/10.5281/zenodo.18391746)
+[![GitHub Pages](https://img.shields.io/badge/live-GitHub%20Pages-brightgreen)](https://helenopaiva.github.io/OpenCitationTrajectory/)
+[![GitHub release](https://img.shields.io/github/v/release/HelenoPaiva/OpenCitationTrajectory)](https://github.com/HelenoPaiva/OpenCitationTrajectory/releases)
+![Last commit](https://img.shields.io/github/last-commit/HelenoPaiva/OpenCitationTrajectory)
+![License](https://img.shields.io/github/license/HelenoPaiva/OpenCitationTrajectory)
+
 # Open Citation Trajectory
 
 An open, reproducible report of how scholarly articles are cited over time.
