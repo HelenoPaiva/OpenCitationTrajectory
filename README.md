@@ -22,8 +22,6 @@ Paste a DOI (or DOI URL) and get:
 - **OpenAlex API** — `cited_by_count` for the target DOI
 - **Google Scholar** — provided as a *search link only* (no automated collection)
 
-> Coverage differs across sources. Google Scholar is often higher; this project intentionally stays open and API-based.
-
 ## How to run locally
 
 Just open `index.html` in your browser.
