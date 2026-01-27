@@ -46,7 +46,6 @@ Just open `index.html` in your browser.
 This repository is intended for open academic use.  
 License terms will be finalized prior to any commercial deployment.
 
----
 
 ## Author
 
